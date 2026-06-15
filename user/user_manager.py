@@ -17,6 +17,7 @@ class UserManager:
             self,
             account_id
     ):
+        self.conn.ping(reconnect=True)
 
         sql = """
         select *
@@ -38,9 +39,16 @@ class UserManager:
             self,
             account_id,
             user_name,
-            department,
-            employee_no
+            department=None,
+            employee_no=None
     ):
+        self.conn.ping(reconnect=True)
+
+        if not user_name:
+            user_name = account_id
+
+        if not employee_no:
+            employee_no = None
 
         sql = """
         insert into ai_user(
@@ -68,6 +76,38 @@ class UserManager:
 
             return cursor.lastrowid
 
+    def ensure_user(
+            self,
+            account_id,
+            user_name=None,
+            department=None,
+            employee_no=None
+    ):
+        user = self.get_user_by_account(account_id)
+
+        if user:
+            return user, False
+
+        user_id = self.create_user(
+            account_id=account_id,
+            user_name=user_name or account_id,
+            department=department,
+            employee_no=employee_no
+        )
+
+        user = self.get_user_by_account(account_id)
+
+        if user:
+            return user, True
+
+        return {
+            "id": user_id,
+            "account_id": account_id,
+            "user_name": user_name or account_id,
+            "department": department,
+            "employee_no": employee_no
+        }, True
+
     def register_if_not_exists(
             self,
             account_id
@@ -78,9 +118,9 @@ class UserManager:
 
             return self.create_user(
                 account_id,
-                "",
-                "",
-                ""
+                account_id,
+                None,
+                None
             )
         return user
 

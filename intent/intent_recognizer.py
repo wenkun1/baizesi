@@ -15,8 +15,6 @@ class IntentRecognizer:
             intent_list=INTENT_NAME_MAP,
             query=text
         )
-        print("\n==========Prompt==========")
-        print(prompt)
 
         result = chat(prompt)
 

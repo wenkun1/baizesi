@@ -21,6 +21,7 @@ class DB:
             intent,
             slots
     ):
+        self.conn.ping(reconnect=True)
 
         sql = """
         insert into ai_order(
